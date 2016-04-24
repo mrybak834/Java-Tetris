@@ -96,7 +96,7 @@ class PieceI extends TetrisPiece {
 
     @Override
     public int rotate(JLabel[][] labelArray){
-        
+
         return 1;
     }
 

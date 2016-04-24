@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
+import java.util.Vector;
 
 
 //TODO Thread suspend for keys
@@ -10,6 +11,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     TetrisPiece currentPiece;
     PieceThread pieceThread;
     int currentColor;
+    int timeout;
 
     static JFrame frame = new JFrame("Tetris");
     JMenuBar menuBar = new JMenuBar();
@@ -125,12 +127,16 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         frame.setVisible(true);
 
+        timeout = 1000;
 
         //TODO
         //BUTTON TO START THE GAME LOOP
         //Start the game
 
+
+
             gameLoop();
+
 
 
     }
@@ -191,10 +197,12 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
             while(!pieceThread.isInterrupted()){
 
             }
-            System.out.println("Got here 1");
             pieceThread.currentlyRunning = false;
             pieceThread.finishedExecution = true;
             pieceThread.stop();
+
+            //Check for row fill
+            rowFillCheck();
 
         }
         //End of forever while loop
@@ -219,7 +227,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
             }
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(timeout);
             } catch (InterruptedException e) {
             }
 
@@ -256,7 +264,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
                 if (finishedExecution == false)
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(timeout);
                     } catch (InterruptedException e) {
                     }
             }
@@ -266,10 +274,51 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
     }
 
+
+    private void rowFillCheck(){
+        Vector<Integer> fullRows = new Vector<>();
+
+        //Get the filled row numbers
+        for(int i = 0; i < 20; i++){
+            //Check if the row is filled
+            int isNotFilled = 0;
+            for(int j = 0; j < 10; j++){
+                if(labelArray[i][j].getIcon().toString().equals("white.jpg")) {
+                    isNotFilled = 1;
+                }
+            }
+
+            //If the row is filled, add it to the vector
+            if (isNotFilled == 0) {
+                fullRows.add(i);
+            }
+        }
+
+        //Clear each full row and move whole board down
+        //TODO Switch for naive gravity or flood fill
+        //Flood fill
+        for(int i : fullRows){
+            for(int j = 0; j < 10; j++){
+                //White out
+                labelArray[i][j].setIcon(iconArray[0]);
+            }
+
+            //For each row above the current row, move it down
+            for(int j = i - 1; j >= 0; j--){
+                for(int k = 0; k < 10; k++) {
+                    labelArray[j + 1][k].setIcon(labelArray[j][k].getIcon());
+                }
+            }
+        }
+
+        //TODO Update score, time, level
+    }
+
     private void rotate(){
         pieceThread.currentlyRunning = false;
 
-        currentPiece.rotate();
+        //TODO
+        currentPiece.rotate(labelArray);
 
         pieceThread.currentlyRunning = true;
     }
@@ -351,45 +400,50 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     }
 
     private void slamDown(){
-
-        pieceThread.currentlyRunning = false;
-
-        //Advance piece until end
-        int x = 1;
-        //Advance piece until end
-        while (x == 1) {
-            if (x == 1) {
-                //White out current piece
-                for (Coordinates c : currentPiece.getPositions()) {
-                    labelArray[c.x][c.y].setIcon(iconArray[0]);
-                }
-            }
-
-            //Check if at end of field
-            for (Coordinates c : currentPiece.getPositions()) {
-                if (c.x == 19) {
-                    //Break out
-                    x = 2;
-                    System.out.println("Got here 2");
-                }
-            }
-
-            if(x != 2) {
-                //Advance piece, check collisions
-                if (currentPiece.advance(labelArray) == 1) {
-                    x = 2;
-                    System.out.println("Got here 3");
-                }
-            }
-
-            //Display
-            for (Coordinates c : currentPiece.getPositions()) {
-                labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
-            }
-
+        while(!pieceThread.isInterrupted()){
+            timeout = 0;
         }
+        timeout = 1000;
 
-        pieceThread.currentlyRunning = true;
+
+//        pieceThread.currentlyRunning = false;
+//
+//        //Advance piece until end
+//        int x = 1;
+//        //Advance piece until end
+//        while (x == 1) {
+//            if (x == 1) {
+//                //White out current piece
+//                for (Coordinates c : currentPiece.getPositions()) {
+//                    labelArray[c.x][c.y].setIcon(iconArray[0]);
+//                }
+//            }
+//
+//            //Check if at end of field
+//            for (Coordinates c : currentPiece.getPositions()) {
+//                if (c.x == 19) {
+//                    //Break out
+//                    x = 2;
+//                    System.out.println("Got here 2");
+//                }
+//            }
+//
+//            if(x != 2) {
+//                //Advance piece, check collisions
+//                if (currentPiece.advance(labelArray) == 1) {
+//                    x = 2;
+//                    System.out.println("Got here 3");
+//                }
+//            }
+//
+//            //Display
+//            for (Coordinates c : currentPiece.getPositions()) {
+//                labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
+//            }
+//
+//        }
+//
+//        pieceThread.currentlyRunning = true;
     }
 
 
