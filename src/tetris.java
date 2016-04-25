@@ -12,7 +12,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     PieceThread pieceThread;
     int currentColor;
     int timeout;
-    int playerCanMove;
 
     static JFrame frame = new JFrame("Tetris");
     JMenuBar menuBar = new JMenuBar();
@@ -130,7 +129,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         timeout = 1000;
 
-        playerCanMove = 0;
 
         //TODO
         //BUTTON TO START THE GAME LOOP
@@ -256,7 +254,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
                         if (currentPiece.advance(labelArray) == 1) {
                             finishedExecution = true;
                         }
-                        playerCanMove = 1;
                     }
 
                     //Display
@@ -273,7 +270,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
                     if (finishedExecution == true) {
                         pieceThread.interrupt();
-                        playerCanMove = 0;
+
                     }
 
                 }
@@ -284,8 +281,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
 
     private void rowFillCheck() {
-        playerCanMove = 0;
-
         Vector<Integer> fullRows = new Vector<>();
 
         //Get the filled row numbers
@@ -329,7 +324,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
     private void rotate() {
         pieceThread.currentlyRunning = false;
-        
+
         //White out current piece
         for (Coordinates c : currentPiece.getPositions()) {
             labelArray[c.x][c.y].setIcon(iconArray[0]);
@@ -511,7 +506,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(playerCanMove == 1) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_UP:
                     rotate();
@@ -530,7 +524,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
                     slamDown();
                     break;
             }
-        }
     }
 
     @Override
