@@ -12,38 +12,36 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     PieceThread pieceThread;
     int currentColor;
     int timeout;
-    int playerCanMove;
 
-    static JFrame frame = new JFrame("Tetris");
-    JMenuBar menuBar = new JMenuBar();
-    JMenu game = new JMenu("Game");
-    JMenu menuHelp = new JMenu("Help");
-    JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_X);
-    JMenuItem menuReset = new JMenuItem("Reset", KeyEvent.VK_R);
-    JMenuItem help = new JMenuItem("Help", KeyEvent.VK_L);
-    JMenuItem about = new JMenuItem("About", KeyEvent.VK_A);
+    static JFrame frame;
+    JMenuBar menuBar;
+    JMenu game;
+    JMenu menuHelp;
+    JMenuItem exit;
+    JMenuItem menuReset;
+    JMenuItem help;
+    JMenuItem about;
     private JLabel labelArray[][];
     private int lacount;
     private JButton timeButton;
     private boolean timeToggle;
     private Timer timeClock;
     private Icon iconArray[];
-    private JLabel timer = new JLabel();
-    private JLabel level = new JLabel();
-    private JLabel nextPiece = new JLabel();
-    private JLabel score = new JLabel();
-    private JLabel linesCleared = new JLabel();
-    private int time = 0;
-    private int round = 0;
-    private int lines = 0;
-    private String piece = "L";
-    private String names[] =
-            {"white.jpg", "blue.jpg", "brown.jpg", "green.jpg", "orange.jpg", "pink.jpg", "red.jpg", "yellow.jpg"};
+    private JLabel timer;
+    private JLabel level;
+    private JLabel nextPiece;
+    private JLabel score;
+    private JLabel linesCleared;
+    private int time;
+    private int round;
+    private int lines;
+    private String piece;
+    private String[] names;
 
 
     public tetris() {
-        super("Tetris");
 
+        frame = new JFrame("Tetris");
         frame.setLayout(new BorderLayout());
         frame.setSize(300, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -53,6 +51,13 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         c.setLayout(new BorderLayout());
 
         // add menu bar and its items to gui
+        exit = new JMenuItem("Exit", KeyEvent.VK_X);
+        menuReset = new JMenuItem("Reset", KeyEvent.VK_R);
+        help = new JMenuItem("Help", KeyEvent.VK_L);
+        about = new JMenuItem("About", KeyEvent.VK_A);
+        menuBar = new JMenuBar();
+        game = new JMenu("Game");
+        menuHelp = new JMenu("Help");
         menuBar.add(game);
         menuBar.add(menuHelp);
         exit.addActionListener(this);
@@ -68,12 +73,17 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         // set up and add stats panel to main container
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new GridLayout());
+        timer = new JLabel();
+        time = 0;
         timer.setText("   Time: " + time);
         timer.setFont(new Font("Arial", Font.BOLD, 16));
         statsPanel.add(timer, BorderLayout.WEST);
+        level = new JLabel();
+        round = 0;
         level.setText("    Level: " + round);
         level.setFont(new Font("Arial", Font.BOLD, 16));
         statsPanel.add(level, BorderLayout.CENTER);
+        score = new JLabel();
         score.setText("    Score: " + round);
         score.setFont(new Font("Arial", Font.BOLD, 16));
         statsPanel.add(score, BorderLayout.EAST);
@@ -83,9 +93,13 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         // set up and add second stats panel to main container
         JPanel statsPanel2 = new JPanel();
         statsPanel2.setLayout(new GridLayout());
+        linesCleared = new JLabel();
+        lines = 0;
         linesCleared.setText("   Lines Cleared: " + lines);
         linesCleared.setFont(new Font("Arial", Font.BOLD, 16));
         statsPanel2.add(linesCleared, BorderLayout.WEST);
+        nextPiece = new JLabel();
+        piece = "L";
         nextPiece.setText("     Next Piece: " + piece);
         nextPiece.setFont(new Font("Arial", Font.BOLD, 16));
         statsPanel2.add(nextPiece, BorderLayout.EAST);
@@ -101,6 +115,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         c.add(labelPanel, BorderLayout.CENTER);
 
         // create and add icons
+        names = new String[]{"white.jpg", "blue.jpg", "brown.jpg", "green.jpg", "orange.jpg", "pink.jpg", "red.jpg", "yellow.jpg"};
         iconArray = new Icon[names.length];
 
         for (int count = 0; count < names.length; count++) {
@@ -130,7 +145,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         timeout = 1000;
 
-        playerCanMove = 0;
 
         //TODO
         //BUTTON TO START THE GAME LOOP
@@ -256,7 +270,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
                         if (currentPiece.advance(labelArray) == 1) {
                             finishedExecution = true;
                         }
-                        playerCanMove = 1;
                     }
 
                     //Display
@@ -273,7 +286,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
                     if (finishedExecution == true) {
                         pieceThread.interrupt();
-                        playerCanMove = 0;
+
                     }
 
                 }
@@ -284,8 +297,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
 
     private void rowFillCheck() {
-        playerCanMove = 0;
-
         Vector<Integer> fullRows = new Vector<>();
 
         //Get the filled row numbers
@@ -329,7 +340,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
     private void rotate() {
         pieceThread.currentlyRunning = false;
-        
+
         //White out current piece
         for (Coordinates c : currentPiece.getPositions()) {
             labelArray[c.x][c.y].setIcon(iconArray[0]);
@@ -511,7 +522,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(playerCanMove == 1) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_UP:
                     rotate();
@@ -530,7 +540,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
                     slamDown();
                     break;
             }
-        }
     }
 
     @Override
