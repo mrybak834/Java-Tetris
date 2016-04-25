@@ -12,6 +12,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     PieceThread pieceThread;
     int currentColor;
     int timeout;
+    int playerCanMove;
 
     static JFrame frame = new JFrame("Tetris");
     JMenuBar menuBar = new JMenuBar();
@@ -129,6 +130,8 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         timeout = 1000;
 
+        playerCanMove = 0;
+
         //TODO
         //BUTTON TO START THE GAME LOOP
         //Start the game
@@ -229,48 +232,51 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         }
 
         public void run() {
-            //Advance piece until end
-            while (finishedExecution == false && currentlyRunning == true) {
-                if (finishedExecution == false) {
-                    //White out current piece
+            System.out.println("VARIABLES: " + finishedExecution + " " + currentlyRunning);
+            while (true) {
+                //Advance piece until end
+                while (finishedExecution == false && currentlyRunning == true) {
+                    if (finishedExecution == false) {
+                        //White out current piece
+                        for (Coordinates c : currentPiece.getPositions()) {
+                            labelArray[c.x][c.y].setIcon(iconArray[0]);
+                        }
+                    }
+
+                    //Check if at end of field
                     for (Coordinates c : currentPiece.getPositions()) {
-                        labelArray[c.x][c.y].setIcon(iconArray[0]);
+                        if (c.x == 19) {
+                            //Break out
+                            finishedExecution = true;
+                        }
                     }
-                }
 
-                //Check if at end of field
-                for (Coordinates c : currentPiece.getPositions()) {
-                    if (c.x == 19) {
-                        //Break out
-                        finishedExecution = true;
-                        System.out.println("Got here 2");
+                    if (finishedExecution == false) {
+                        //Advance piece, check collisions
+                        if (currentPiece.advance(labelArray) == 1) {
+                            finishedExecution = true;
+                        }
+                        playerCanMove = 1;
                     }
-                }
 
-                if (finishedExecution == false) {
-                    //Advance piece, check collisions
-                    if (currentPiece.advance(labelArray) == 1) {
-                        finishedExecution = true;
-                        System.out.println("Got here 3");
+                    //Display
+                    for (Coordinates c : currentPiece.getPositions()) {
+                        labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
                     }
-                }
 
-                //Display
-                for (Coordinates c : currentPiece.getPositions()) {
-                    labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
-                }
-
-                if (finishedExecution == false) {
-                    try {
-                        Thread.sleep(timeout);
-                    } catch (InterruptedException e) {
+                    if (finishedExecution == false) {
+                        try {
+                            Thread.sleep(timeout);
+                        } catch (InterruptedException e) {
+                        }
                     }
+
+                    if (finishedExecution == true) {
+                        pieceThread.interrupt();
+                        playerCanMove = 0;
+                    }
+
                 }
-
-            }
-
-            if (finishedExecution == true) {
-                pieceThread.interrupt();
             }
         }
 
@@ -278,6 +284,8 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
 
     private void rowFillCheck() {
+        playerCanMove = 0;
+
         Vector<Integer> fullRows = new Vector<>();
 
         //Get the filled row numbers
@@ -321,15 +329,31 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
     private void rotate() {
         pieceThread.currentlyRunning = false;
+        pieceThread.interrupt();
 
-        //TODO
-        currentPiece.rotate(labelArray);
 
+        //White out current piece
+        for (Coordinates c : currentPiece.getPositions()) {
+            labelArray[c.x][c.y].setIcon(iconArray[0]);
+        }
+
+        //Rotate
+        currentPiece.rotate(labelArray, iconArray);
+
+
+        //Display
+        for (Coordinates c : currentPiece.getPositions()) {
+            labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
+        }
+
+        pieceThread = new PieceThread();
+        pieceThread.start();
         pieceThread.currentlyRunning = true;
     }
 
     private void moveRight() {
         pieceThread.currentlyRunning = false;
+        pieceThread.interrupt();
 
         //White out current piece
         for (Coordinates c : currentPiece.getPositions()) {
@@ -352,11 +376,16 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         }
 
         //Move the piece if possible
-        if (canMove == 0) {
-            for (Coordinates c : currentPiece.getPositions()) {
+        for (Coordinates c : currentPiece.getPositions()) {
+            if (canMove == 0) {
                 c.y = c.y + 1;
+                c.x = c.x - 1;
+            }
+            else{
+                c.x = c.x - 1;
             }
         }
+
 
         //Display
         for (Coordinates c : currentPiece.getPositions()) {
@@ -364,16 +393,19 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         }
 
 //        try {
-//            Thread.sleep(1000);
+//            pieceThread.sleep(timeout);
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
 
+        pieceThread = new PieceThread();
+        pieceThread.start();
         pieceThread.currentlyRunning = true;
     }
 
     private void moveLeft() {
         pieceThread.currentlyRunning = false;
+        pieceThread.interrupt();
 
         //White out current piece
         for (Coordinates c : currentPiece.getPositions()) {
@@ -396,65 +428,68 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         }
 
         //Move the piece if possible
-        if (canMove == 0) {
-            for (Coordinates c : currentPiece.getPositions()) {
+        for (Coordinates c : currentPiece.getPositions()) {
+            if (canMove == 0) {
                 c.y = c.y - 1;
+                c.x = c.x - 1;
+            }
+            else{
+                c.x = c.x - 1;
             }
         }
+
 
         //Display
         for (Coordinates c : currentPiece.getPositions()) {
             labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
         }
 
+        pieceThread = new PieceThread();
+        pieceThread.start();
         pieceThread.currentlyRunning = true;
     }
 
     private void slamDown() {
-        while (!pieceThread.isInterrupted()) {
-            timeout = 0;
+        pieceThread.currentlyRunning = false;
+        pieceThread.interrupt();
+
+        //Advance piece until end
+        int x = 1;
+        //Advance piece until end
+        while (x == 1) {
+            if (x == 1) {
+                //White out current piece
+                for (Coordinates c : currentPiece.getPositions()) {
+                    labelArray[c.x][c.y].setIcon(iconArray[0]);
+                }
+            }
+
+            //Check if at end of field
+            for (Coordinates c : currentPiece.getPositions()) {
+                if (c.x == 19) {
+                    //Break out
+                    x = 2;
+                }
+            }
+
+            if(x != 2) {
+                //Advance piece, check collisions
+                if (currentPiece.advance(labelArray) == 1) {
+                    x = 2;
+                }
+            }
+
+            //Display
+            for (Coordinates c : currentPiece.getPositions()) {
+                labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
+            }
+
         }
-        timeout = 1000;
 
+        pieceThread = new PieceThread();
+        pieceThread.start();
+        pieceThread.currentlyRunning = true;
 
-//        pieceThread.currentlyRunning = false;
-//
-//        //Advance piece until end
-//        int x = 1;
-//        //Advance piece until end
-//        while (x == 1) {
-//            if (x == 1) {
-//                //White out current piece
-//                for (Coordinates c : currentPiece.getPositions()) {
-//                    labelArray[c.x][c.y].setIcon(iconArray[0]);
-//                }
-//            }
-//
-//            //Check if at end of field
-//            for (Coordinates c : currentPiece.getPositions()) {
-//                if (c.x == 19) {
-//                    //Break out
-//                    x = 2;
-//                    System.out.println("Got here 2");
-//                }
-//            }
-//
-//            if(x != 2) {
-//                //Advance piece, check collisions
-//                if (currentPiece.advance(labelArray) == 1) {
-//                    x = 2;
-//                    System.out.println("Got here 3");
-//                }
-//            }
-//
-//            //Display
-//            for (Coordinates c : currentPiece.getPositions()) {
-//                labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
-//            }
-//
-//        }
-//
-//        pieceThread.currentlyRunning = true;
     }
 
 
@@ -488,23 +523,25 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP:
-                rotate();
-                break;
-            case KeyEvent.VK_DOWN:
-                System.out.println("GOt here 2");
-                break;
-            case KeyEvent.VK_LEFT:
-                moveLeft();
-                break;
-            case KeyEvent.VK_RIGHT:
-                moveRight();
-                break;
-            case KeyEvent.VK_SPACE:
-                //Push the current piece down until a collision
-                slamDown();
-                break;
+        if(playerCanMove == 1) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_UP:
+                    rotate();
+                    break;
+                case KeyEvent.VK_DOWN:
+                    System.out.println("GOt here 2");
+                    break;
+                case KeyEvent.VK_LEFT:
+                    moveLeft();
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    moveRight();
+                    break;
+                case KeyEvent.VK_SPACE:
+                    //Push the current piece down until a collision
+                    slamDown();
+                    break;
+            }
         }
     }
 

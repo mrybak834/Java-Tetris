@@ -31,10 +31,12 @@ public class TetrisPiece {
         return 1;
     }
 
-    public int rotate(JLabel[][] labelArray){
+    public int rotate(JLabel[][] labelArray, Icon[] iconArray){
         return 1;
     }
 }
+
+
 
 class PieceI extends TetrisPiece {
     //Array of Coordinates of the piece on the grid
@@ -95,7 +97,42 @@ class PieceI extends TetrisPiece {
 
 
     @Override
-    public int rotate(JLabel[][] labelArray){
+    public int rotate(JLabel[][] labelArray, Icon[] iconArray){
+        //Check if we can rotate
+        if (orientation == 1){
+            //*
+            //*  -> ****
+            //*
+            //*
+            //Bounds
+            if( (positions[0].x+1 > 19) || (positions[0].y-1 < 0) || (positions[0].y-1 > 9) ||
+                (positions[2].x-1 > 19) || (positions[2].y+1 < 0) || (positions[2].y+1 > 9) ||
+                (positions[3].x-2 > 19) || (positions[3].y+2 < 0) || (positions[3].y+2 > 9)){
+                    //Can't rotate
+                    return 1;
+            }
+            //Collision
+            else if (!labelArray[positions[0].x + 1][positions[0].y - 1].getIcon().toString().equals("white.jpg") ||
+               !labelArray[positions[2].x - 1][positions[2].y + 1].getIcon().toString().equals("white.jpg") ||
+               !labelArray[positions[3].x - 2][positions[3].y + 2].getIcon().toString().equals("white.jpg")){
+                    return 1;
+            }
+            //Rotate
+            else{
+                orientation = 2;
+
+                positions[0].x = positions[0].x + 1;
+                positions[0].y = positions[0].y - 1;
+                positions[2].x = positions[2].x - 1;
+                positions[2].y = positions[2].y + 1;
+                positions[3].x = positions[3].x - 2;
+                positions[3].y = positions[3].y + 2;
+            }
+        }
+        else{
+
+        }
+
 
         return 1;
     }
