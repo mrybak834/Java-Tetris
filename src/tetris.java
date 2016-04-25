@@ -13,6 +13,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     int currentColor;
     int timeout;
 
+<<<<<<< HEAD
     static JFrame frame;
     JMenuBar menuBar;
     JMenu game;
@@ -21,6 +22,16 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     JMenuItem menuReset;
     JMenuItem help;
     JMenuItem about;
+=======
+    static JFrame frame = new JFrame("Tetris");
+    JMenuBar menuBar = new JMenuBar();
+    JMenu game = new JMenu("Game");
+    JMenu menuHelp = new JMenu("Help");
+    JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_X);
+    JMenuItem menuReset = new JMenuItem("Reset", KeyEvent.VK_R);
+    JMenuItem help = new JMenuItem("Help", KeyEvent.VK_L);
+    JMenuItem about = new JMenuItem("About", KeyEvent.VK_A);
+>>>>>>> origin/master
     private JLabel labelArray[][];
     private int lacount;
     private JButton timeButton;
