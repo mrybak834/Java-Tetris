@@ -329,9 +329,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
     private void rotate() {
         pieceThread.currentlyRunning = false;
-        pieceThread.interrupt();
-
-
+        
         //White out current piece
         for (Coordinates c : currentPiece.getPositions()) {
             labelArray[c.x][c.y].setIcon(iconArray[0]);
@@ -346,14 +344,12 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
             labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
         }
 
-        pieceThread = new PieceThread();
-        pieceThread.start();
         pieceThread.currentlyRunning = true;
     }
 
     private void moveRight() {
         pieceThread.currentlyRunning = false;
-        pieceThread.interrupt();
+        //pieceThread.interrupt();
 
         //White out current piece
         for (Coordinates c : currentPiece.getPositions()) {
@@ -379,10 +375,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         for (Coordinates c : currentPiece.getPositions()) {
             if (canMove == 0) {
                 c.y = c.y + 1;
-                c.x = c.x - 1;
-            }
-            else{
-                c.x = c.x - 1;
             }
         }
 
@@ -398,14 +390,14 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 //            e.printStackTrace();
 //        }
 
-        pieceThread = new PieceThread();
-        pieceThread.start();
+        //pieceThread = new PieceThread();
+        //pieceThread.start();
         pieceThread.currentlyRunning = true;
     }
 
     private void moveLeft() {
         pieceThread.currentlyRunning = false;
-        pieceThread.interrupt();
+        //pieceThread.interrupt();
 
         //White out current piece
         for (Coordinates c : currentPiece.getPositions()) {
@@ -431,10 +423,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         for (Coordinates c : currentPiece.getPositions()) {
             if (canMove == 0) {
                 c.y = c.y - 1;
-                c.x = c.x - 1;
-            }
-            else{
-                c.x = c.x - 1;
             }
         }
 
@@ -444,14 +432,14 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
             labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
         }
 
-        pieceThread = new PieceThread();
-        pieceThread.start();
+        //pieceThread = new PieceThread();
+        //pieceThread.start();
         pieceThread.currentlyRunning = true;
     }
 
     private void slamDown() {
         pieceThread.currentlyRunning = false;
-        pieceThread.interrupt();
+        //pieceThread.interrupt();
 
         //Advance piece until end
         int x = 1;
@@ -486,8 +474,8 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         }
 
-        pieceThread = new PieceThread();
-        pieceThread.start();
+        //pieceThread = new PieceThread();
+        //pieceThread.start();
         pieceThread.currentlyRunning = true;
 
     }
