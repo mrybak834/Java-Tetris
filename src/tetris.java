@@ -12,6 +12,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     PieceThread pieceThread;
     int currentColor;
     int timeout;
+    GameThread gameLoop;
 
     static JFrame frame;
     JMenuBar menuBar;
@@ -21,6 +22,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     JMenuItem menuReset;
     JMenuItem help;
     JMenuItem about;
+    JButton startGame;
     private JLabel labelArray[][];
     private int lacount;
     private JButton timeButton;
@@ -72,7 +74,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         // set up and add stats panel to main container
         JPanel statsPanel = new JPanel();
-        statsPanel.setLayout(new GridLayout());
+        statsPanel.setLayout(new GridLayout(2,3));
         timer = new JLabel();
         time = 0;
         timer.setText("   Time: " + time);
@@ -87,6 +89,14 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         score.setText("    Score: " + round);
         score.setFont(new Font("Arial", Font.BOLD, 16));
         statsPanel.add(score, BorderLayout.EAST);
+
+        statsPanel.add ( new JLabel ("", JLabel.CENTER));
+        startGame = new JButton("Start Game");
+        startGame.addActionListener(this);
+        startGame.setFocusable(false);
+        statsPanel.add(startGame);
+        statsPanel.add ( new JLabel ("", JLabel.CENTER));
+
         c.add(statsPanel, BorderLayout.NORTH);
 
 
@@ -111,7 +121,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         int column = 10;
         labelPanel.setLayout(new GridLayout(row, column, 0, 0));
         labelPanel.setSize(500, 250);
-
         c.add(labelPanel, BorderLayout.CENTER);
 
         // create and add icons
@@ -139,101 +148,95 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         frame.add(c, BorderLayout.SOUTH);
 
-        //labelArray[1][4].setIcon(iconArray[1]);
-
         frame.setVisible(true);
 
         timeout = 1000;
 
-
-        //TODO
-        //BUTTON TO START THE GAME LOOP
-        //Start the game
-
-
-        gameLoop();
-
-
     }
 
-
-    public void gameLoop() {
-
-        //Process game moves
-        while (true) {
-            //Generate a random piece (1-7)
-            Random r = new Random();
-            currentColor = r.nextInt((7 - 1) + 1) + 1;
-            switch (currentColor) {
-                //I
-                case 1: {
-                    currentPiece = new PieceI();
-                    break;
-                }
-                //T
-                case 2: {
-                    currentPiece = new PieceT();
-                    break;
-                }
-                //O
-                case 3: {
-                    currentPiece = new PieceO();
-                    break;
-                }
-                //L
-                case 4: {
-                    currentPiece = new PieceL();
-                    break;
-                }
-                //J
-                case 5: {
-                    currentPiece = new PieceJ();
-                    break;
-                }
-                //S
-                case 6: {
-                    currentPiece = new PieceS();
-                    break;
-                }
-                //Z
-                case 7: {
-                    currentPiece = new PieceZ();
-                    break;
-                }
-                default:
-                    //Random generation out of bounds, create an I piece
-                    currentPiece = new PieceI();
-                    break;
-            }
-
-            //TODO Check if the piece can be spawned
-
-            //Display piece
-            for (Coordinates c : currentPiece.getPositions()) {
-                labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
-            }
-
-            try {
-                Thread.sleep(timeout);
-            } catch (InterruptedException e) {
-            }
-
-            pieceThread = new PieceThread();
-            pieceThread.start();
-
-            while (!pieceThread.isInterrupted()) {
-
-            }
-            pieceThread.currentlyRunning = false;
-            pieceThread.finishedExecution = true;
-            pieceThread.stop();
-
-            //Check for row fill
-            rowFillCheck();
+    class GameThread extends Thread {
+        GameThread(){
 
         }
-        //End of forever while loop
 
+        public void run() {
+
+            //Process game moves
+            while (true) {
+                //Generate a random piece (1-7)
+                Random r = new Random();
+                currentColor = r.nextInt((7 - 1) + 1) + 1;
+                switch (currentColor) {
+                    //I
+                    case 1: {
+                        currentPiece = new PieceI();
+                        break;
+                    }
+                    //T
+                    case 2: {
+                        currentPiece = new PieceT();
+                        break;
+                    }
+                    //O
+                    case 3: {
+                        currentPiece = new PieceO();
+                        break;
+                    }
+                    //L
+                    case 4: {
+                        currentPiece = new PieceL();
+                        break;
+                    }
+                    //J
+                    case 5: {
+                        currentPiece = new PieceJ();
+                        break;
+                    }
+                    //S
+                    case 6: {
+                        currentPiece = new PieceS();
+                        break;
+                    }
+                    //Z
+                    case 7: {
+                        currentPiece = new PieceZ();
+                        break;
+                    }
+                    default:
+                        //Random generation out of bounds, create an I piece
+                        currentPiece = new PieceI();
+                        break;
+                }
+
+                //TODO Check if the piece can be spawned
+
+                //Display piece
+                for (Coordinates c : currentPiece.getPositions()) {
+                    labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
+                }
+
+                try {
+                    Thread.sleep(timeout);
+                } catch (InterruptedException e) {
+                }
+
+                pieceThread = new PieceThread();
+                pieceThread.start();
+
+                while (!pieceThread.isInterrupted()) {
+
+                }
+                pieceThread.currentlyRunning = false;
+                pieceThread.finishedExecution = true;
+                pieceThread.stop();
+
+                //Check for row fill
+                rowFillCheck();
+
+            }
+            //End of forever while loop
+
+        }
     }
 
     public class PieceThread extends Thread {
@@ -339,7 +342,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     }
 
     private void rotate() {
-        pieceThread.currentlyRunning = false;
+        //pieceThread.currentlyRunning = false;
 
         //White out current piece
         for (Coordinates c : currentPiece.getPositions()) {
@@ -355,11 +358,11 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
             labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
         }
 
-        pieceThread.currentlyRunning = true;
+        //pieceThread.currentlyRunning = true;
     }
 
     private void moveRight() {
-        pieceThread.currentlyRunning = false;
+        //pieceThread.currentlyRunning = false;
         //pieceThread.interrupt();
 
         //White out current piece
@@ -403,11 +406,11 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         //pieceThread = new PieceThread();
         //pieceThread.start();
-        pieceThread.currentlyRunning = true;
+        //pieceThread.currentlyRunning = true;
     }
 
     private void moveLeft() {
-        pieceThread.currentlyRunning = false;
+        //pieceThread.currentlyRunning = false;
         //pieceThread.interrupt();
 
         //White out current piece
@@ -445,11 +448,11 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         //pieceThread = new PieceThread();
         //pieceThread.start();
-        pieceThread.currentlyRunning = true;
+        //pieceThread.currentlyRunning = true;
     }
 
     private void slamDown() {
-        pieceThread.currentlyRunning = false;
+        //pieceThread.currentlyRunning = false;
         //pieceThread.interrupt();
 
         //Advance piece until end
@@ -487,7 +490,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         //pieceThread = new PieceThread();
         //pieceThread.start();
-        pieceThread.currentlyRunning = true;
+        //pieceThread.currentlyRunning = true;
 
     }
 
@@ -502,9 +505,13 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         Object item;
         item = e.getSource(); // get menu item that triggered the event
 
+        if(e.getSource() == startGame){
+            gameLoop = new GameThread();
+            gameLoop.start();
+        }
+
         // match the menu item to the its resulting action
         if (item == menuReset) {
-
         } else if (item == exit) {
             System.exit(0);
         } else if (item == about) {
