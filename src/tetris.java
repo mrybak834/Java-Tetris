@@ -47,7 +47,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         frame = new JFrame("Tetris");
         frame.setLayout(new BorderLayout());
-        frame.setSize(300, 620);
+        frame.setSize(305, 630);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.addKeyListener(this);
 
@@ -93,7 +93,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         statsPanel.add(score, BorderLayout.EAST);
 
         statsPanel.add ( new JLabel ("", JLabel.CENTER));
-        startGame = new JButton("Start Game");
+        startGame = new JButton("New Game");
         startGame.addActionListener(this);
         startGame.setFocusable(false);
         statsPanel.add(startGame);
