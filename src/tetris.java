@@ -13,6 +13,8 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
     int currentColor;
     int timeout;
     GameThread gameLoop;
+    int gameRunning;
+    int gravityType;
 
     static JFrame frame;
     JMenuBar menuBar;
@@ -45,7 +47,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         frame = new JFrame("Tetris");
         frame.setLayout(new BorderLayout());
-        frame.setSize(300, 600);
+        frame.setSize(300, 620);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.addKeyListener(this);
 
@@ -152,17 +154,20 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
         timeout = 1000;
 
+        gameRunning = 0;
+
     }
 
     class GameThread extends Thread {
-        GameThread(){
+        boolean shouldContinue;
 
+        GameThread(){
+            shouldContinue = true;
         }
 
         public void run() {
-
             //Process game moves
-            while (true) {
+            while (shouldContinue) {
                 //Generate a random piece (1-7)
                 Random r = new Random();
                 currentColor = r.nextInt((7 - 1) + 1) + 1;
@@ -249,6 +254,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         }
 
         public void run() {
+            gameRunning = 1;
             System.out.println("VARIABLES: " + finishedExecution + " " + currentlyRunning);
             while (true) {
                 //Advance piece until end
@@ -506,8 +512,30 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         item = e.getSource(); // get menu item that triggered the event
 
         if(e.getSource() == startGame){
-            gameLoop = new GameThread();
-            gameLoop.start();
+            System.out.println("CLICKED");
+            if(gameRunning == 0) {
+                gameLoop = new GameThread();
+                gameLoop.start();
+
+                //Change button text
+                startGame.setText("New game");
+            }
+            else{
+
+                //TODO
+                //Stop game
+                //gameLoop.shouldContinue = false;
+
+                gameRunning = 0;
+
+                //White out the game board
+                for(JLabel[] l : labelArray){
+                    for(JLabel k : l){
+                        k.setIcon(iconArray[0]);
+                    }
+                }
+
+            }
         }
 
         // match the menu item to the its resulting action
