@@ -1,22 +1,22 @@
-/* Authors: Mike McClory and Marek R.
- * Class: CS342 Software Design
- * Instructor: P.Troy
- * Project 5: Tetris
- * 
- * Conatins: Game class (for the menu items ) 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
-import java.io.*;
 
-//
-// class that contains the functions for the Game Menu's options
-// i.e. help, about, top ten
-//
+
+/**
+ * Client.java - This class holds all of the information required for GUI display, connections
+ * to the server, as well as information relay of names and messages.
+ * Many instances of the chat executable are allowed to connect to the server, and all information
+ * is abstracted away from clients by passing through the server.
+ * A client must first connect to the server with a unique name, then message sending capabilities are
+ * enabled, and the connection will close upon clicking the button or the exit field of the GUI.
+ * @version     1.0.0
+ * @university  University of Illinois at Chicago
+ * @course      CS342 - Software Design
+ * @package     Project #05 - Tetris
+ * @category    Menu
+ * @author      Marek Rybakiewicz
+ * @author      Michael McClory
+ * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
+ */
 public class GameMenu {
 
     //

@@ -1,60 +1,269 @@
+//Implement singleton and factory pattern
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 import java.util.Vector;
 
+/**
+ * Tetris.java - The Tetris class handles the main game loop, GUI creation, and
+ * all thread/listener processing. Upon execution of the program, the user is presented
+ * with the GUI, and the ability to select from the menu options as well as starting the game.
+ *
+ * Once the game is started, Tetris pieces are generated, the user can control actions with the keyboard,
+ * and the game can be restarted. Score calculation, game speed, and other game related properties are displayed
+ * to the user on the top and bottom sides of the game board, and are updated when necessary.
+ *
+ * @version     1.0.0
+ * @university  University of Illinois at Chicago
+ * @course      CS342 - Software Design
+ * @package     Project #05 - Tetris
+ * @category    GUI, Main Loop
+ * @author      Marek Rybakiewicz
+ * @author      Michael McClory
+ * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
+ */
+public class Tetris extends JFrame implements ActionListener, KeyListener {
 
-//TODO Thread suspend for keys
-public class tetris extends JFrame implements ActionListener, KeyListener {
-
+    /**
+     * An instance of the TetrisPiece class, serves as the current tetris piece in play.
+     * The type of subclass is randomly generated upon the start of every piece cycle,
+     * and correct functions are inherited by means of polymorphism.
+     * @type TetrisPiece
+     */
     TetrisPiece currentPiece;
+
+    /**
+     * The thread that handles moving the current tetris piece down the gameboard.
+     * All manipulation functions are handled by the keylistener and pause execution of this thread
+     * until the action is performed.
+     * @type PieceThread
+     */
     PieceThread pieceThread;
+
+    /**
+     * The color of the current piece in play.
+     * Used so that every piece may maintain color consistency from game to game,
+     * since indices of the icon array correspond with the piece type.
+     * @type int
+     */
     int currentColor;
+
+    /**
+     * The time delay between each descent of the piece on the gameboard.
+     * Used for increasing difficulty between levels and calculating score.
+     * @type int
+     */
     int timeout;
+
+    /**
+     * The main loop that generates a piece and creates a PieceThread.
+     * Pieces are generated randomly each cycle.
+     * @type GameThread
+     */
     GameThread gameLoop;
+
+    /**
+     * Indicates whether the game is currently in progress or not.
+     * Used for starting a new game by triggering a thread flag.
+     * @type int
+     * @val 0  Indicates game is not running
+     * @val 1  Indicates game is running
+     */
     int gameRunning;
+
+    /**
+     * Indicates what type of gravity (naive or fluid) should be used when
+     * moving rows down the game board after a row has been cleared.
+     * Naive gravity has the board move down by the number of rows that were cleared
+     * Fluid gravity has the pieces fall until they fall on top of another block
+     * @type int
+     * @val 0  Fluid gravity
+     * @val 1  Naive gravity
+     */
     int gravityType;
 
+    /**
+     * The main GUI frame.
+     * Houses all of the gui elements
+     * @type JFrame
+     */
     static JFrame frame;
+
+    /**
+     * The menu bar.
+     * Houses all menus and submenus
+     * @type JMenuBar
+     */
     JMenuBar menuBar;
+
+    /**
+     * The game menu.
+     * Houses submenus with game actions (Restart and Exit)
+     * @type JMenu
+     */
     JMenu game;
+
+    /**
+     * The help menu.
+     * Houses submenus with help actions (About and Help)
+     * @type JMenu
+     */
     JMenu menuHelp;
+
+    /**
+     * The exit submenu.
+     * Exits the frame and terminates execution.
+     * @type JMenuItem
+     */
     JMenuItem exit;
+
+    /**
+     * The game reset submenu.
+     * Stops the current game in progress and starts a new one.
+     * @type JMenuItem
+     */
     JMenuItem menuReset;
+
+    /**
+     * The help submenu.
+     * Displays information on how to play the game.
+     * @type JMenuItem
+     */
     JMenuItem help;
+
+    /**
+     * The about submenu.
+     * Displays information about the authors of the game.
+     * @type JMenuItem
+     */
     JMenuItem about;
+
+    /**
+     * The button handling game status.
+     * Picked up by an actionlistener, starts the game if not started,
+     * restarts the game if already in progress.
+     * @type JButton
+     */
     JButton startGame;
+
+    /**
+     * The button handling gravity choice.
+     * Allows the user to switch between naive and flood fill gravity types
+     * used when a row is filled.
+     * @type JButton
+     */
+    JButton gravityButton;
+
+    /**
+     * The array of labels that serves as the game grid display.
+     * Updated every time a function on a piece occurs or the game is reset.
+     * @type JLabel
+     */
     private JLabel labelArray[][];
-    private int lacount;
-    private JButton timeButton;
-    private boolean timeToggle;
+
+    /**
+     * The thread that updates the time display label.
+     * Incremented every second while the game is active,
+     * reset upon game reset.
+     * @type Timer
+     */
     private Timer timeClock;
+
+    /**
+     * The array of icons that will be used for label display purposes.
+     * Contains icons of game grid as well as pieces.
+     * @type Icon
+     */
     private Icon iconArray[];
+
+    /**
+     * Displays the time elapsed in the current game on the frame.
+     * Updated by timeClock thread.
+     * @type JLabel
+     */
     private JLabel timer;
+
+    /**
+     * Displays the current level of the game.
+     * Calculated based on the number of rows cleared
+     * @type JLabel
+     */
     private JLabel level;
+
+    /**
+     * Displays what type of piece will be active next.
+     * The piece types are therefore randomized while another piece is active.
+     * @type JLabel
+     */
     private JLabel nextPiece;
+
+    /**
+     * Displays the score of the current game.
+     * The score is calculated based upon the number of rows cleared at a
+     * certain time and the current level of the game.
+     * @type JLabel
+     */
     private JLabel score;
+
+    /**
+     * Displays the amount of rows cleared so far.
+     * @type JLabel
+     */
     private JLabel linesCleared;
+
+    /**
+     * Stores the current time to be displayed.
+     * @type int
+     */
     private int time;
+
+    /**
+     * Stores the current round to be displayed.
+     * @type int
+     */
     private int round;
+
+    /**
+     * Stores the number of lines cleared to be displayed.
+     * @type int
+     */
     private int lines;
+
+    /**
+     * Stores the piece that is upcoming to be displayed.
+     * @type String
+     */
     private String piece;
+
+    /**
+     * Stores the names of the icons that will be used in display of the game grid.
+     * @type String[]
+     */
     private String[] names;
 
 
-    public tetris() {
+    /**
+     * The default constructor of the Tetris class.
+     * Initializes all of the GUI items and sets fields to default values.
+     * Execution is then passed to actionlisteners which await user input to either access
+     * menus or start the game.
+     */
+    public Tetris() {
 
+        //Creates the frame
         frame = new JFrame("Tetris");
         frame.setLayout(new BorderLayout());
         frame.setSize(305, 630);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.addKeyListener(this);
 
+        //Creates the container
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
 
-        // add menu bar and its items to gui
+        //Creates the menu items and adds to the GUI
         exit = new JMenuItem("Exit", KeyEvent.VK_X);
         menuReset = new JMenuItem("Reset", KeyEvent.VK_R);
         help = new JMenuItem("Help", KeyEvent.VK_L);
@@ -74,7 +283,8 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         menuHelp.add(help);
         frame.setJMenuBar(menuBar);
 
-        // set up and add stats panel to main container
+
+        //Creates the first set of statistics and adds them to the GUI
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new GridLayout(2,3));
         timer = new JLabel();
@@ -91,18 +301,16 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         score.setText("    Score: " + round);
         score.setFont(new Font("Arial", Font.BOLD, 16));
         statsPanel.add(score, BorderLayout.EAST);
-
         statsPanel.add ( new JLabel ("", JLabel.CENTER));
         startGame = new JButton("New Game");
         startGame.addActionListener(this);
         startGame.setFocusable(false);
         statsPanel.add(startGame);
         statsPanel.add ( new JLabel ("", JLabel.CENTER));
-
         c.add(statsPanel, BorderLayout.NORTH);
 
 
-        // set up and add second stats panel to main container
+        //Creates the second set of statistics and adds them to the GUI
         JPanel statsPanel2 = new JPanel();
         statsPanel2.setLayout(new GridLayout());
         linesCleared = new JLabel();
@@ -117,7 +325,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         statsPanel2.add(nextPiece, BorderLayout.EAST);
         c.add(statsPanel2, BorderLayout.SOUTH);
 
-
+        //Creates the game grid and adds it to the GUI
         JPanel labelPanel = new JPanel();
         int row = 20;
         int column = 10;
@@ -125,7 +333,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         labelPanel.setSize(500, 250);
         c.add(labelPanel, BorderLayout.CENTER);
 
-        // create and add icons
+        //Creates the icons and adds them to the game grid
         names = new String[]{"white.jpg", "blue.jpg", "brown.jpg", "green.jpg", "orange.jpg", "pink.jpg", "red.jpg", "yellow.jpg"};
         iconArray = new Icon[names.length];
 
@@ -133,7 +341,6 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
             iconArray[count] = new ImageIcon(names[count]);
         }
 
-        lacount = 0;
         int count = 0;
 
         labelArray = new JLabel[20][10];
@@ -145,26 +352,48 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
             }
         }
 
+        //Creates the timer
         int delay = 1000;
         timeClock = new Timer(delay, new TimerHandler());
 
         frame.add(c, BorderLayout.SOUTH);
-
         frame.setVisible(true);
 
+        //Delay for piece advancement
         timeout = 1000;
 
+        //The game is not running until the user presses the button
         gameRunning = 0;
 
     }
+    //End of Tetris constructor
 
+    /**
+     * Thread class that handles the main game loop.
+     * A Tetris piece is created if the thread is flagged as active,
+     * and execution is passed onto the thread of the piece until it is interrupted.
+     * New pieces are created until a flag marks the thread as inactive.
+     */
     class GameThread extends Thread {
+
+        /**
+         * Flag marking whether the game loop should spawn another piece or not.
+         * @type boolean
+         */
         boolean shouldContinue;
 
+        /**
+         * The default constructor of the GameThread class.
+         * Initializes the flag variable to allow for piece creation.
+         * This occurs upon the start of a new game.
+         */
         GameThread(){
             shouldContinue = true;
         }
 
+        /**
+         * Handles execution of the thread while active.
+         */
         public void run() {
             //Process game moves
             while (shouldContinue) {
@@ -220,17 +449,22 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
                     labelArray[c.x][c.y].setIcon(iconArray[currentColor]);
                 }
 
+                //Wait before updating display
                 try {
                     Thread.sleep(timeout);
                 } catch (InterruptedException e) {
                 }
 
+                //Create a new thread for the current piece
                 pieceThread = new PieceThread();
                 pieceThread.start();
 
+                //Wait until the thread is interrupted (collision)
                 while (!pieceThread.isInterrupted()) {
 
                 }
+
+                //Fully stop the thread
                 pieceThread.currentlyRunning = false;
                 pieceThread.finishedExecution = true;
                 pieceThread.stop();
@@ -240,9 +474,11 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
             }
             //End of forever while loop
-
         }
+        //End of run method
     }
+    //End of GameThread class
+
 
     public class PieceThread extends Thread {
         public boolean currentlyRunning;
@@ -365,6 +601,10 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
         }
 
         //pieceThread.currentlyRunning = true;
+    }
+
+    private void softDrop(){
+
     }
 
     private void moveRight() {
@@ -502,8 +742,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
 
 
     public static void main(String args[]) {
-        tetris app = new tetris();
-
+        Tetris app = new Tetris();
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -562,7 +801,7 @@ public class tetris extends JFrame implements ActionListener, KeyListener {
                     rotate();
                     break;
                 case KeyEvent.VK_DOWN:
-                    System.out.println("GOt here 2");
+                    softDrop();
                     break;
                 case KeyEvent.VK_LEFT:
                     moveLeft();
