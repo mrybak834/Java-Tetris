@@ -164,14 +164,6 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
     private JLabel labelArray[][];
 
     /**
-     * The thread that updates the time display label.
-     * Incremented every second while the game is active,
-     * reset upon game reset.
-     * @type Timer
-     */
-    private Timer timeClock;
-
-    /**
      * The array of icons that will be used for label display purposes.
      * Contains icons of game grid as well as pieces.
      * @type Icon
@@ -352,10 +344,6 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
             }
         }
 
-        //Creates the timer
-        int delay = 1000;
-        timeClock = new Timer(delay, new TimerHandler());
-
         frame.add(c, BorderLayout.SOUTH);
         frame.setVisible(true);
 
@@ -480,20 +468,53 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
     //End of GameThread class
 
 
+    /**
+     * Handles moving the current active piece down the board.
+     * A new thread is created for each piece, and execution can be paused
+     * by setting the flags.
+     * The system pauses execution whenever a user issues a keybaord command.
+     * @var currentlyRunning Indicates whether the thread is running or paused
+     * @var finishedExecution Indicates if the thread has completely finished and a new one
+     *                        should be started.
+     *@type Thread
+     */
     public class PieceThread extends Thread {
+        /**
+         * Indicates whether the thread is active or paused.
+         * If paused, causes the thread to loop and do nothing until the thread is reset.
+         * @type boolean
+         */
         public boolean currentlyRunning;
+
+        /**
+         * Indicates whether the thread has fully finished or not.
+         * If fully finished, notifies the gameLoop.
+         * @type boolean
+         */
         public boolean finishedExecution;
 
+        /**
+         * Default constructor for the PieceThread class.
+         * Initialized both flags to active
+         * @type Constructor
+         */
         PieceThread() {
             currentlyRunning = true;
             finishedExecution = false;
         }
 
+        /**
+         * Main execution loop for the thread.
+         * Moves the game piece down the board until interrupted or a collision occurs.
+         * @type void
+         */
         public void run() {
+            //Indicates to thr start button that the game is running.
             gameRunning = 1;
-            System.out.println("VARIABLES: " + finishedExecution + " " + currentlyRunning);
+
+            //Run forever
             while (true) {
-                //Advance piece until end
+                //Advance piece until end of board or collision
                 while (finishedExecution == false && currentlyRunning == true) {
                     if (finishedExecution == false) {
                         //White out current piece
@@ -529,18 +550,27 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
                         }
                     }
 
+                    //If we are done, notify the gameLoop
                     if (finishedExecution == true) {
                         pieceThread.interrupt();
 
                     }
 
-                }
-            }
-        }
+                } //End of inner while loop
+            } // End of outer while loop
+        }//End of thread runner
 
-    }
+    }//End of PieceThread class
 
 
+    /**
+     * Checks to see if a row was filled with colored blocks upon the end of a piece cycle.
+     * If a row was filled, blocks above the row fall down based on the gravity type enabled
+     * by a switch statement based on the gravity button (naive or fluid).
+     * Multiple rows are handled simultaneously.
+     * Score is updated upon filling the row and all related variables are also updated.
+     * @type void
+     */
     private void rowFillCheck() {
         Vector<Integer> fullRows = new Vector<>();
 
@@ -582,7 +612,14 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
 
         //TODO Update score, time, level
     }
+    //End of rowFillCheck method
 
+
+    /**
+     * Rotates the current piece based upon current orientation.
+     * Called from the keylistener (UP), and calls the method of the respective piece class
+     * @type void
+     */
     private void rotate() {
         //pieceThread.currentlyRunning = false;
 
@@ -602,11 +639,26 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
 
         //pieceThread.currentlyRunning = true;
     }
+    //End of rotate method
 
+    /**
+     * Drops the current piece down faster than the regular interval.
+     * Triggered by the keylistener, and occurs while the key is pressed down by decreasing
+     * the timeout time for the sleeping of the piece thread.
+     * @type void
+     */
     private void softDrop(){
 
     }
+    //End of softDrop method
 
+    /**
+     * Moves the current piece to the right if possible.
+     * Processing occurs in this method rather than in the respective piece class because
+     * every piece has the same type of movement right.
+     * Execution of the PieceThread is paused until the user stops providing input.
+     * @type void
+     */
     private void moveRight() {
         //pieceThread.currentlyRunning = false;
         //pieceThread.interrupt();
@@ -654,7 +706,16 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
         //pieceThread.start();
         //pieceThread.currentlyRunning = true;
     }
+    //End of moveRight method
 
+
+    /**
+     * Moves the current piece to the left if possible.
+     * Processing occurs in this method rather than in the respective piece class because
+     * every piece has the same type of movement left.
+     * Execution of the PieceThread is paused until the user stops providing input.
+     * @type void
+     */
     private void moveLeft() {
         //pieceThread.currentlyRunning = false;
         //pieceThread.interrupt();
@@ -696,7 +757,15 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
         //pieceThread.start();
         //pieceThread.currentlyRunning = true;
     }
+    //End of moveLeft method
 
+    /**
+     * Moves the current piece to the bottom of the game grid,
+     * or down until a collision is detected.
+     * Calls the advance method of the respective piece until the collision occurs.
+     * Thread execution is not halted during this time.
+     * @type void
+     */
     private void slamDown() {
         //pieceThread.currentlyRunning = false;
         //pieceThread.interrupt();
@@ -739,19 +808,39 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
         //pieceThread.currentlyRunning = true;
 
     }
+    //End of slamDown method
 
 
+    /**
+     * The main method.
+     * Creates an instance of Tetris, which houses all components of the game and GUI.
+     * Execution is handled in this instance by threads and listeners.
+     * @param args
+     * @type void
+     */
     public static void main(String args[]) {
         Tetris app = new Tetris();
     }
+    //End of main method
 
+    /**
+     * Handles button clicks and menu selects.
+     * Checks which item was pressed and performs the corresponding action.
+     * Starts/restarts a game when the start button is pressed,
+     * Changes gravity type when the gravity button is pressed,
+     * and displays menu information for menus and submenus.
+     * @type void
+     * @param e
+     */
     public void actionPerformed(ActionEvent e) {
+        //Get menu item that triggered the event
         GameMenu gm = new GameMenu();
         Object item;
-        item = e.getSource(); // get menu item that triggered the event
+        item = e.getSource();
 
+        //Handle game start button
         if(e.getSource() == startGame){
-            System.out.println("CLICKED");
+            //Game is not currently running start
             if(gameRunning == 0) {
                 gameLoop = new GameThread();
                 gameLoop.start();
@@ -759,6 +848,7 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
                 //Change button text
                 startGame.setText("New game");
             }
+            //Game is currently running, stop
             else{
 
                 //TODO
@@ -777,7 +867,7 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
             }
         }
 
-        // match the menu item to the its resulting action
+        //Determine which menu item was pressed
         if (item == menuReset) {
         } else if (item == exit) {
             System.exit(0);
@@ -788,12 +878,28 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
         }
 
     }
+    //End of actionPerformed method
 
+    /**
+     * Method needed to implement keyListener, does nothing.
+     * @param e
+     */
     @Override
     public void keyTyped(KeyEvent e) {
 
     }
+    //End of keyTyped method
 
+
+    /**
+     * Handles the key presses during gameplay.
+     * Up key results in piece rotation,
+     * left or right keys move the piece left or right while also pausing the game until done moving,
+     * down results in a soft drop (faster descent) of the piece until a collision,
+     * and the space bar results in a hard drop (instantaneous) of the piece until the collision.
+     * @type KeyListener
+     * @param e
+     */
     @Override
     public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
@@ -810,25 +916,20 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
                     moveRight();
                     break;
                 case KeyEvent.VK_SPACE:
-                    //Push the current piece down until a collision
                     slamDown();
                     break;
             }
     }
+    //End of keyPressed method
 
+    /**
+     * Method needed for keylistener implementation, not used.
+     * @param e
+     */
     @Override
     public void keyReleased(KeyEvent e) {
 
     }
-
-
-    // inner class for timer event handling
-    private class TimerHandler implements ActionListener {
-
-        // handle button event
-        public void actionPerformed(ActionEvent event) {
-
-        }
-
-    } // end private inner class TimerHandler2
+    //End of keyReleased method
 }
+//End of Tetris class

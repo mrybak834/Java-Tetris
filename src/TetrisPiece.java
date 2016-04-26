@@ -1,12 +1,13 @@
 import javax.swing.*;
 
 /**
- * Client.java - This class holds all of the information required for GUI display, connections
- * to the server, as well as information relay of names and messages.
- * Many instances of the chat executable are allowed to connect to the server, and all information
- * is abstracted away from clients by passing through the server.
- * A client must first connect to the server with a unique name, then message sending capabilities are
- * enabled, and the connection will close upon clicking the button or the exit field of the GUI.
+ * TetrisPiece.java - Serves as the tetris pieces for the game.
+ * The superclass TetrisPiece establishes the orientation of the pieces to the default value.
+ * All methods of the superclass are overriden by the subclasses, with there being 1 subclass
+ * corresponding to each unique tetris piece for a total of 7 subclasses.
+ * The subclasses store the current Coordinates of each of the 4 subsections of the piece on the game board,
+ * along with methods for returning the Coordinate array, moving the piece down the field,  and rotating.
+ * Each override in a class contains piece specific manipulations.
  * @version     1.0.0
  * @university  University of Illinois at Chicago
  * @course      CS342 - Software Design
@@ -17,37 +18,69 @@ import javax.swing.*;
  * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
  */
 public class TetrisPiece {
-    //The current orientation of the piece (1-4);
+    /**
+     * Holds the current orientation of the piece (1-4).
+     * Used in rotating the piece.
+     * @type int
+     */
     int orientation;
-    public Coordinates[] positions;
 
-    //Creates a tetris piece
+    /**
+     * Default constructor, initializes the orientation to the default state
+     * @type Constructor
+     */
     TetrisPiece() {
-
         //Initial orientation
         this.orientation = 1;
     }
 
+    /**
+     * Dummy method, overriden in subclasses
+     * @return null
+     */
     public Coordinates[] getPositions() {
         return null;
     }
 
-
+    /**
+     * Dummy method, overriden in subclasses
+     * @return int
+     */
     public int advance(JLabel[][] labelArray) {
         return 1;
     }
 
+    /**
+     * Dummy method, overriden in subclasses
+     * @return int
+     */
     public int rotate(JLabel[][] labelArray, Icon[] iconArray){
         return 1;
     }
 }
+//End of TetrisPiece class
 
 
-
+/**
+ * The subclasses of TetrisPiece all override the methods within the superclass,
+ * providing information unique to the piece.
+ * Each subclass also stores an array of the coordinates of each subsection of the piece.
+ *
+ * All pieces follow the same pattern, so comments found in this specific subclass are universally applicable.
+ */
 class PieceI extends TetrisPiece {
-    //Array of Coordinates of the piece on the grid
+    /**
+     * Stores the coordinates of each subsection of the current piece.
+     * Coordinates are x,y pairs, with x corresponding to the row and y to the column.
+     * @type Coordinates
+     */
     public Coordinates[] positions;
 
+    /**
+     * The default constructor initializes the 4 coordinate pairs that the piece
+     * consists of.
+     * @type Constructor
+     */
     PieceI() {
         positions = new Coordinates[4];
 
@@ -57,15 +90,24 @@ class PieceI extends TetrisPiece {
         positions[2] = new Coordinates(2, 4);
         positions[3] = new Coordinates(3, 4);
     }
+    //End of PieceI constructor
 
-    //Return the coordinate array
+    /**
+     * Returns the coordinate array corresponding to the subsections of the piece.
+     * @return Coordinates[]
+     */
     @Override
     public Coordinates[] getPositions() {
         return positions;
     }
+    //End of getPositions method
 
-    //Advance the piece down by 1 position on the field, if possible
-    //Return 1 if collision
+    /**
+     * Advances the current piece 1 row down the game grid.
+     * Checks and reports collisions with the bottom of the grid or with another piece.
+     * @param labelArray    Array of labels that acts as the game grid
+     * @return int          1 if collision, 0 otherwise
+     */
     @Override
     public int advance(JLabel[][] labelArray) {
         //Check for collisions
@@ -93,8 +135,17 @@ class PieceI extends TetrisPiece {
         }
         return 0;
     }
+    //End of advance method
 
 
+    /**
+     * Attempts to rotate the piece based upon the current orientation.
+     * Any collisions with the game grid or another piece are reported.
+     * Every piece has 4 different possible orientations.
+     * @param labelArray  Array of labels acting as the game grid
+     * @param iconArray   Array of icon images used in display
+     * @return int        Returns 1 if rotation did not occur, 0 otherwise
+     */
     @Override
     public int rotate(JLabel[][] labelArray, Icon[] iconArray) {
         try {
@@ -159,9 +210,10 @@ class PieceI extends TetrisPiece {
                 }
             }
 
-
+            //Successfully rotated
             return 1;
         } catch (Exception e) {
+            //Array out of bounds error, should never happen
             System.out.println("0: " + positions[0].x + " " + positions[0].y);
             System.out.println("2: " + positions[2].x + " " + positions[2].y);
             System.out.println("3: " + positions[3].x + " " + positions[3].y);
@@ -170,9 +222,12 @@ class PieceI extends TetrisPiece {
 
 
     }
+    //End of rotate method
 
 
 }
+//End of class PieceI
+
 
 class PieceT extends TetrisPiece {
     //Array of Coordinates of the piece on the grid
@@ -735,10 +790,6 @@ class PieceJ extends TetrisPiece {
                 //   4     34
                 //
                 //Bounds
-                System.out.println("0:" +  positions[0].x + " " + positions[0].y);
-                System.out.println("1:" +  positions[1].x + " " + positions[1].y);
-                System.out.println("2:" +  positions[2].x + " " + positions[2].y);
-                System.out.println("3:" +  positions[3].x + " " + positions[3].y);
                 if ((positions[0].x - 1 < 0) || (positions[0].y + 1 > 9) ||
                         (positions[2].x + 1 > 19) || (positions[2].y - 2 < 0) ||
                         (positions[3].y - 1 < 0)) {
