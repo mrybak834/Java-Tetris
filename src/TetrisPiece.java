@@ -25,6 +25,14 @@ public class TetrisPiece {
      */
     int orientation;
 
+
+    /*
+     * Holds the Letter name of the piece
+     *
+     */
+    char name;
+
+
     /**
      * Default constructor, initializes the orientation to the default state
      * @type Constructor
@@ -1076,4 +1084,3 @@ class PieceZ extends TetrisPiece {
     }
 
 }
-
