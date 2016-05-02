@@ -37,10 +37,9 @@ public class GameMenu {
      */
     public void displayHelp() {
         JOptionPane.showMessageDialog(null, "                                              HELP CENTER\n\n "
-                + "Left-click a square to find out if it is a mine or not.\n\n"
-                + "Right-click a square once to tag it as definitley holding a mine.\n\n"
-                + "Right-click a square a second time to tag it as maybe having a mine.\n\n"
-                + "Right-click a square a third time will make the square look like you didn't touch it.        \n");
+                + "Left and right arrows to move the piece around.\n\n"
+                + "Up arrow to rotate, down arrow to soft drop, space bar to hard drop.\n\n"
+                + "Start a new game by clicking the new game button, switch gravity type in the menu.\n\n");
 
 
     }

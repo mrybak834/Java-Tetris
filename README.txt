@@ -1,5 +1,11 @@
 The program is run using the main in SingletonGUI.java.
 
+Left and right arrows to move the piece around.
+Up arrow to rotate, down arrow to soft drop, space bar to hard drop.
+Start a new game by clicking the new game button, switch gravity type in the menu.
+
+
+
 The design patterns used are:
 
 Singleton.
