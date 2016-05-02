@@ -484,7 +484,7 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
                 }
 
 
-
+            //Generate new pieces while the game is active
             while(shouldContinue){
                 int currentColor = getNextPiece();
 
@@ -593,6 +593,7 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
     }
     //End of GameThread class
 
+    // Gets the next piece for display
     public int getNextPiece(){
         //Generate a random piece (1-7)
         Random r = new Random();
@@ -789,7 +790,6 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
 
 
         //Clear each full row and move whole board down
-        //TODO Switch for naive gravity or flood fill
         //Naive Gravity
         for (int i : fullRows) {
             for (int j = 0; j < 10; j++) {
@@ -804,10 +804,6 @@ public class Tetris extends JFrame implements ActionListener, KeyListener {
                 }
             }
         }
-
-        //Naive Gravity
-
-
     }
     //End of rowFillCheck method
 
